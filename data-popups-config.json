@@ -1,0 +1,40 @@
+{
+  "//": "0 todos os popups do L1 Plant",
+  "0": {
+    "markup": "<style>.mfp-iframe-holder .mfp-content {max-width:800px;height:200px;}</style><div class=\"mfp-iframe-scaler\"><div class=\"mfp-close\"></div><iframe class=\"mfp-iframe\" frameborder=\"0\" allowfullscreen></iframe></div>"
+  },
+
+  "//": "1 todos os popups do L2 Area",
+  "1": {
+    "markup": "<style>.mfp-iframe-holder .mfp-content {max-width:800px;height:250px;}</style><div class=\"mfp-iframe-scaler\"><div class=\"mfp-close\"></div><iframe class=\"mfp-iframe\" frameborder=\"0\" allowfullscreen></iframe></div>"
+  },
+
+  "//": "2 todos os popups do L3 Subarea",
+  "2": {
+    "markup": "<style>.mfp-iframe-holder .mfp-content {max-width:800px;height:250px;}</style><div class=\"mfp-iframe-scaler\"><div class=\"mfp-close\"></div><iframe class=\"mfp-iframe\" frameborder=\"0\" allowfullscreen></iframe></div>"
+  },
+
+  "//": "3 todos os popups do L4 Equipament",
+  "3": {
+    "markup": "<style>.mfp-iframe-holder .mfp-content {max-width:800px;height:250px;}</style><div class=\"mfp-iframe-scaler\"><div class=\"mfp-close\"></div><iframe class=\"mfp-iframe\" frameborder=\"0\" allowfullscreen></iframe></div>"
+  },
+
+  "//": "4 todos os popups do L4 Indicator",
+  "4": {
+    "markup": "<style>.mfp-iframe-holder .mfp-content {max-width:800px;height:300px;}</style><div class=\"mfp-iframe-scaler\"><div class=\"mfp-close\"></div><iframe class=\"mfp-iframe\" frameborder=\"0\" allowfullscreen></iframe></div>"
+  },
+
+  "//": "5 popups do L5 Parameter",
+  "5": {
+    "markup": "<style>.mfp-iframe-holder .mfp-content {max-width:800px;height:400px;}</style><div class=\"mfp-iframe-scaler\"><div class=\"mfp-close\"></div><iframe class=\"mfp-iframe\" frameborder=\"0\" allowfullscreen></iframe></div>"
+  },
+
+  "//": "Somente popup do show PI's",
+  "parameter": {
+    "markup": "<style>.mfp-iframe-holder .mfp-content {max-width:1100px;height:600px;}</style><div class=\"mfp-iframe-scaler\"><div class=\"mfp-close\"></div><iframe class=\"mfp-iframe\" frameborder=\"0\" allowfullscreen></iframe></div>"
+  },
+  
+  "indicator": {
+    "markup": "<style>.mfp-iframe-holder .mfp-content {max-width:900px;height:400px;}</style><div class=\"mfp-iframe-scaler\"><div class=\"mfp-close\"></div><iframe class=\"mfp-iframe\" frameborder=\"0\" allowfullscreen></iframe></div>"
+  }
+}
