@@ -55,12 +55,11 @@
             $(document).ready(function() {
                 $('.rsform').on('submit', function(e) {
                     e.preventDefault();
-                    console.log("Submit detectado!"); // Debug para ver se o clique funciona
+                    console.log("Submit detectado!");
 
                     const novoIndicador = $("input[name='nome']").val();
                     
                     if (novoIndicador && novoIndicador.trim() !== "") {
-                        // Verifica se a função existe no pai antes de chamar
                         if (window.parent && window.parent.adicionarIndicadorAoNode) {
                             window.parent.adicionarIndicadorAoNode(novoIndicador);
                             window.parent.$.magnificPopup.close();
