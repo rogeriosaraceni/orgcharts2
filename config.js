@@ -48,7 +48,6 @@ $(document).ready(function () {
 
     const titleKPI = "KPI Innovation";
 
-
     // Ajustado
     const customLevelNames = [
         "L1 Plant",
@@ -239,23 +238,13 @@ $(document).ready(function () {
         </text>
     `;
 
-    // OrgChart.templates.ana.field_html_content = `
-    //     <foreignObject x="10" width="${widthContentNodes}">
-    //         <div xmlns="http://www.w3.org/1999/xhtml" style="width: 100%; height: 100%; box-sizing: border-box; text-align: center; font-size: 10px; color: #555;">
-    //             {val}
-    //         </div>
-    //     </foreignObject>
-    // `;
-
     OrgChart.templates.ana.field_html_content = `
-        <foreignObject x="10" y="60" width="${widthContentNodes}" height="300">
-            <div xmlns="http://www.w3.org/1999/xhtml" style="width: 100%; height: 100%; box-sizing: border-box; color: #FF0000; font-size: 11px; font-weight: bold;">
+        <foreignObject x="10" y="60" width="${widthContentNodes}">
+            <div xmlns="http://www.w3.org/1999/xhtml" style="width: 100%; height: 100%; box-sizing: border-box; color: #FF0000; font-size: 11px;">
                 {val}
             </div>
         </foreignObject>
     `;
-
-
 
     // Template node-parameter (herda de base, mas pode herdar de ana para consistência)
     OrgChart.templates['node-parameter'] = Object.assign({}, OrgChart.templates.base);
@@ -431,376 +420,377 @@ $(document).ready(function () {
             // Configuração para templates baseados em tags
             tags: {
                 "node-parameter": {
-                template: "node-parameter"
-            },
-                "node-parameter-critical": {
-                template: "node-parameter-critical"
-            }
-        },
-
-        nodeBinding: {
-            field_name: "name",
-            field_html_content: "htmlContent",
-            field_name_parameter: "name",
-            field_name_parameter_critical: "name",
-        },
-    });
-
-    // Evento para calcular altura dinamicamente para cada nó
-    chart.on('node-initialized', function(sender, args) {
-        const data = chart.get(args.node.id);
-
-        if (data.tags && $.inArray('node-parameter', data.tags) !== -1) {
-            // node-parameter: altura FIXA de 100px (conforme seu código original)
-            args.node.h = 40;
-        }
-        else if (data.tags && $.inArray('node-parameter-critical', data.tags) !== -1) {
-            // node-parameter: altura FIXA de 100px (conforme seu código original)
-            args.node.h = 40;
-        }
-        else {
-            // Nó normal (template ana): altura dinâmica baseada no conteúdo
-            let calculatedHeight = 0;
-            const buttonAreaHeight = 32; // Altura do foreignObject dos botões
-            const buttonAreaY = 5; // Posição Y do foreignObject dos botões
-            const nameFieldY = 55; // Posição Y do campo de nome
-
-            // Altura da área dos botões + margem abaixo
-            calculatedHeight += buttonAreaY + buttonAreaHeight + 10;
-
-            let nameHeight = 0;
-            if (data.name) {
-                nameHeight = calculateContentHeight(data.name, widthContentNodes, 12);
-                calculatedHeight += nameHeight;
-            }
-
-            let htmlContentHeight = 0;
-            let htmlContentY = 0;
-            if (data.htmlContent) {
-                const textHtmlSeparation = 10; // Espaçamento entre o texto e o HTML
-                htmlContentY = nameFieldY + nameHeight + textHtmlSeparation;
-                htmlContentHeight = calculateContentHeight(data.htmlContent, widthContentNodes, 10);
-                calculatedHeight += textHtmlSeparation + htmlContentHeight;
-            }
-
-            // Adiciona um padding inferior
-            calculatedHeight += padding;
-
-            args.node.h = calculatedHeight; // Define a altura calculada
-            // Armazena as posições Y e alturas calculadas no objeto args.node
-            // para serem usadas no evento 'onField'
-            args.node._htmlContentY = htmlContentY;
-            args.node._htmlContentHeight = htmlContentHeight;
-        }
-    });
-
-    // Evento onField para definir y e height do foreignObject dinamicamente
-    // chart.on('field', function(sender, args) {
-    //     // Verifica se é o nosso campo de conteúdo HTML personalizado
-    //     if (args.name === 'field_html_content') {
-    //         const foreignObjectElement = args.element; // Este é o elemento <foreignObject> SVG
-    //         const node = args.node;
-
-    //         // Acessa os valores calculados e armazenados em 'node-initialized'
-    //         const yPos = node._htmlContentY;
-    //         const heightVal = node._htmlContentHeight;
-
-    //         if (foreignObjectElement && yPos !== undefined && heightVal !== undefined) {
-    //             foreignObjectElement.setAttribute('y', yPos);
-    //             foreignObjectElement.setAttribute('height', heightVal);
-    //         }
-    //     }
-    // });
-        
-    chart.on('field', function(sender, args) {
-        if (args.name === 'field_html_content') {
-            const nodeData = sender.get(args.node.id);
-            const htmlHeight = nodeData._htmlContentHeight;
-            const htmlY = nodeData._htmlContentY || 60;
-
-            if (htmlHeight) {
-                // Aplica direto no elemento SVG que o OrgChart acabou de criar
-                args.element.setAttribute('y', htmlY);
-                args.element.setAttribute('height', htmlHeight);
-            } else {
-                // Se for o primeiro carregamento e não tiver altura salva, 
-                // tenta calcular na hora ou define um padrão
-                args.element.setAttribute('y', 60);
-                args.element.setAttribute('height', 20); 
-            }
-        }
-    });       
-        
-    // Evento de clique
-    chart.on('click', function(sender, args) {
-        const e = args.event;
-
-        // Evento popup create
-        if (args && args.node && e && e.target && $(e.target).closest('[data-btn-popup="create"]').length) {
-        const nodeId = args.node.id;
-        const nodeData = chart.get(nodeId);
-        const nodeLevel = args.node.level;
-
-        if (nodeData && nodeData.urlCreate) {
-        const configForLevel = magnificIframeConfigs[nodeLevel];
-
-        if (configForLevel) {
-                $.magnificPopup.open({
-                    items: {
-                        src: nodeData.urlCreate,
-                        type: "iframe",
-                    },
-                iframe: {
-                    markup: configForLevel.markup,
+                    template: "node-parameter"
                 },
-                mainClass: "mfp-fade",
-                    removalDelay: 160,
-                    preloader: false,
-                    fixedContentPos: true,
-                });
+                "node-parameter-critical": {
+                    template: "node-parameter-critical"
+                }
+            },
+
+            nodeBinding: {
+                field_name: "name",
+                field_html_content: "htmlContent",
+                field_name_parameter: "name",
+                field_name_parameter_critical: "name",
+            },
+        });
+
+        // Evento para calcular altura dinamicamente para cada nó
+        chart.on('node-initialized', function(sender, args) {
+            const data = chart.get(args.node.id);
+
+            if (data.tags && $.inArray('node-parameter', data.tags) !== -1) {
+                args.node.h = 40;
             }
-        }
+            else if (data.tags && $.inArray('node-parameter-critical', data.tags) !== -1) {
+                args.node.h = 40;
+            }
+            else {
+                // Nó normal (template ana): altura dinâmica baseada no conteúdo
+                let calculatedHeight = 0;
+                const buttonAreaHeight = 32; // Altura do foreignObject dos botões
+                const buttonAreaY = 5; // Posição Y do foreignObject dos botões
+                const nameFieldY = 55; // Posição Y do campo de nome
+
+                // Altura da área dos botões + margem abaixo
+                calculatedHeight += buttonAreaY + buttonAreaHeight + 10;
+
+                let nameHeight = 0;
+                if (data.name) {
+                    nameHeight = calculateContentHeight(data.name, widthContentNodes, 12);
+                    calculatedHeight += nameHeight;
+                }
+
+                let htmlContentHeight = 0;
+                let htmlContentY = 0;
+                if (data.htmlContent) {
+                    const textHtmlSeparation = 10; // Espaçamento entre o texto e o HTML
+                    htmlContentY = nameFieldY + nameHeight + textHtmlSeparation;
+                    htmlContentHeight = calculateContentHeight(data.htmlContent, widthContentNodes, 10);
+                    calculatedHeight += textHtmlSeparation + htmlContentHeight;
+                }
+
+                // Adiciona um padding inferior
+                calculatedHeight += padding;
+
+                args.node.h = calculatedHeight; // Define a altura calculada
+                // Armazena as posições Y e alturas calculadas no objeto args.node
+                // para serem usadas no evento 'onField'
+                args.node._htmlContentY = htmlContentY;
+                args.node._htmlContentHeight = htmlContentHeight;
+            }
+        });
+
+        // Evento onField para definir y e height do foreignObject dinamicamente
             
-        e.stopPropagation();
-            return false;
-        }
+        // chart.on('field', function(sender, args) {
+        //     // Verifica se é o nosso campo de conteúdo HTML personalizado
+        //     if (args.name === 'field_html_content') {
+        //         const foreignObjectElement = args.element; // Este é o elemento <foreignObject> SVG
+        //         const node = args.node;
 
-        // Evento popup edit
-        if (args && args.node && e && e.target && $(e.target).closest('[data-btn-popup="edit"]').length) {
-            const nodeId = args.node.id;
-            const nodeData = chart.get(nodeId);
-            const nodeLevel = args.node.level;
+        //         // Acessa os valores calculados e armazenados em 'node-initialized'
+        //         const yPos = node._htmlContentY;
+        //         const heightVal = node._htmlContentHeight;
 
-            if (nodeData && nodeData.urlEdit) {
+        //         if (foreignObjectElement && yPos !== undefined && heightVal !== undefined) {
+        //             foreignObjectElement.setAttribute('y', yPos);
+        //             foreignObjectElement.setAttribute('height', heightVal);
+        //         }
+        //     }
+        // });
+            
+        chart.on('field', function(sender, args) {
+            if (args.name === 'field_html_content') {
+                const nodeData = sender.get(args.node.id);
+                const htmlHeight = nodeData._htmlContentHeight;
+                const htmlY = nodeData._htmlContentY || 60;
+
+                if (htmlHeight) {
+                    // Aplica direto no elemento SVG que o OrgChart acabou de criar
+                    args.element.setAttribute('y', htmlY);
+                    args.element.setAttribute('height', htmlHeight);
+                } else {
+                    // Se for o primeiro carregamento e não tiver altura salva, 
+                    // tenta calcular na hora ou define um padrão
+                    args.element.setAttribute('y', 60);
+                    args.element.setAttribute('height', 20); 
+                }
+            }
+        });       
+            
+        // Evento de clique
+        chart.on('click', function(sender, args) {
+            const e = args.event;
+
+            // Evento popup create
+            if (args && args.node && e && e.target && $(e.target).closest('[data-btn-popup="create"]').length) {
+                const nodeId = args.node.id;
+                const nodeData = chart.get(nodeId);
+                const nodeLevel = args.node.level;
+
+                if (nodeData && nodeData.urlCreate) {
                 const configForLevel = magnificIframeConfigs[nodeLevel];
 
                 if (configForLevel) {
-                    $.magnificPopup.open({
-                        items: {
-                            src: nodeData.urlEdit,
-                            type: "iframe",
-                        },
+                        $.magnificPopup.open({
+                            items: {
+                                src: nodeData.urlCreate,
+                                type: "iframe",
+                            },
                         iframe: {
                             markup: configForLevel.markup,
                         },
                         mainClass: "mfp-fade",
-                        removalDelay: 160,
-                        preloader: false,
-                        fixedContentPos: true,
-                    });
+                            removalDelay: 160,
+                            preloader: false,
+                            fixedContentPos: true,
+                        });
+                    }
                 }
-            }
-            e.stopPropagation();
-            return false;
-        }
-
-        // Evento para o botão de deletar
-        if (args && args.node && e && e.target && $(e.target).closest('[data-btn-alert="del"]').length) {
-            const nodeId = args.node.id;
-            const nodeData = chart.get(nodeId);
-
-            if (nodeData && confirm(`Deseja excluir o nó "${nodeData.name}"?`)) {
-                if (nodeData.urlDel) {
-                    $.ajax({
-                            url: nodeData.urlDel,
-                            type: 'POST',
-                            data: {
-                            nodeId: nodeId,
-                            action: 'delete'
-                        },
-                        success: function(response) {
-                            //console.log('Nó excluído:', nodeId);
-                            chart.removeNode(nodeId);
-                            alert('Excluído com sucesso!');
-                            window.parent.location.href = '?id_kpi=60&type_control=view';
-                        },
-                        error: function(xhr, status, error) {
-                            //console.error('Erro:', error);
-                            alert('Erro ao excluir');
-                        }
-                    });
-                }
-            } else {
+                
                 e.stopPropagation();
                 return false;
             }
-        }       
-            
-        // Evento popup parameter
-        if (args && args.node && e && e.target && $(e.target).closest('[data-btn-popup="parameter"]').length) {
-            const nodeId = args.node.id;
-            const nodeData = chart.get(nodeId);
 
-            if (nodeData && nodeData.urlParameter) {
-                // Use a chave "parameter" diretamente em vez de nodeLevel
-                const configForParameter = magnificIframeConfigs["parameter"];
+            // Evento popup edit
+            if (args && args.node && e && e.target && $(e.target).closest('[data-btn-popup="edit"]').length) {
+                const nodeId = args.node.id;
+                const nodeData = chart.get(nodeId);
+                const nodeLevel = args.node.level;
 
-                if (configForParameter) {
-                    $.magnificPopup.open({
-                        items: {
-                            src: nodeData.urlParameter,
-                            type: 'iframe'
-                        },
-                        iframe: {
-                            markup: configForParameter.markup
-                        },
-                        mainClass: 'mfp-fade',
-                        removalDelay: 160,
-                        preloader: false,
-                        fixedContentPos: true
-                    });
+                if (nodeData && nodeData.urlEdit) {
+                    const configForLevel = magnificIframeConfigs[nodeLevel];
+
+                    if (configForLevel) {
+                        $.magnificPopup.open({
+                            items: {
+                                src: nodeData.urlEdit,
+                                type: "iframe",
+                            },
+                            iframe: {
+                                markup: configForLevel.markup,
+                            },
+                            mainClass: "mfp-fade",
+                            removalDelay: 160,
+                            preloader: false,
+                            fixedContentPos: true,
+                        });
+                    }
+                }
+                e.stopPropagation();
+                return false;
+            }
+
+            // Evento para o botão de deletar
+            if (args && args.node && e && e.target && $(e.target).closest('[data-btn-alert="del"]').length) {
+                const nodeId = args.node.id;
+                const nodeData = chart.get(nodeId);
+
+                if (nodeData && confirm(`Deseja excluir o nó "${nodeData.name}"?`)) {
+                    if (nodeData.urlDel) {
+                        $.ajax({
+                                url: nodeData.urlDel,
+                                type: 'POST',
+                                data: {
+                                nodeId: nodeId,
+                                action: 'delete'
+                            },
+                            success: function(response) {
+                                //console.log('Nó excluído:', nodeId);
+                                chart.removeNode(nodeId);
+                                alert('Excluído com sucesso!');
+                                window.parent.location.href = '?id_kpi=60&type_control=view';
+                            },
+                            error: function(xhr, status, error) {
+                                //console.error('Erro:', error);
+                                alert('Erro ao excluir');
+                            }
+                        });
+                    }
+                } else {
+                    e.stopPropagation();
+                    return false;
+                }
+            }       
+                
+            // Evento popup parameter
+            if (args && args.node && e && e.target && $(e.target).closest('[data-btn-popup="parameter"]').length) {
+                const nodeId = args.node.id;
+                const nodeData = chart.get(nodeId);
+
+                if (nodeData && nodeData.urlParameter) {
+                    // Use a chave "parameter" diretamente em vez de nodeLevel
+                    const configForParameter = magnificIframeConfigs["parameter"];
+
+                    if (configForParameter) {
+                        $.magnificPopup.open({
+                            items: {
+                                src: nodeData.urlParameter,
+                                type: 'iframe'
+                            },
+                            iframe: {
+                                markup: configForParameter.markup
+                            },
+                            mainClass: 'mfp-fade',
+                            removalDelay: 160,
+                            preloader: false,
+                            fixedContentPos: true
+                        });
                     } else {
                         console.warn('Configuração "parameter" não encontrada em magnificIframeConfigs');
                     }
                 }
                 e.stopPropagation();
                 return false;
-        }
-            
-        // Evento popup indicator
-        if (args && args.node && e && e.target && $(e.target).closest('[data-btn-popup="indicator"]').length) {
-            const nodeId = args.node.id;
-            const nodeData = chart.get(nodeId);
-
-            if (nodeData && nodeData.urlIndicator) { 
-                // SALVE O ID DO NÓ ATUAL EM UMA VARIÁVEL GLOBAL
-                window.nodeAtivoId = args.node.id;
-
-                const configForIndicator = magnificIframeConfigs["indicator"];
-
-                if (configForIndicator) {
-                    $.magnificPopup.open({
-                        items: {
-                            src: nodeData.urlIndicator,
-                            type: "iframe",
-                        },
-                        iframe: {
-                            markup: configForIndicator.markup,
-                        },
-                        mainClass: "mfp-fade",
-                        removalDelay: 160,
-                        preloader: false,
-                        fixedContentPos: true,
-                    });
-                } else {
-                    console.warn('Configuração "indicator" não encontrada no JSON');
-                }
             }
-            e.stopPropagation();
-            return false;
-        }
-    });
-        
-    // Evento para ajustar alturas após criação
-    chart.on('created', function(sender) {
-        setTimeout(() => {
-        chart.fit();
-        }, 100);
-    });
+                
+            // Evento popup indicator
+            if (args && args.node && e && e.target && $(e.target).closest('[data-btn-popup="indicator"]').length) {
+                const nodeId = args.node.id;
+                const nodeData = chart.get(nodeId);
 
-    // Evento para desenhar bordas de nível
-    chart.on('prerender', function(sender, args){
-        const borders = args.res.bordersByRootIdAndLevel[Object.keys(args.res.bordersByRootIdAndLevel)[0]];
-        let maxY = Number.MIN_SAFE_INTEGER;
-        let minY = Number.MAX_SAFE_INTEGER;
-        let minX = Number.MAX_SAFE_INTEGER;
-        let maxX = Number.MIN_SAFE_INTEGER;
+                if (nodeData && nodeData.urlIndicator) { 
+                    // SALVE O ID DO NÓ ATUAL EM UMA VARIÁVEL GLOBAL
+                    window.nodeAtivoId = args.node.id;
 
-        for (let i in borders){
-        maxY = Math.max(maxY, borders[i].maxY);
-        minY = Math.min(minY, borders[i].minY);
-        minX = Math.min(minX, borders[i].minX);
-        maxX = Math.max(maxX, borders[i].maxX);
-    }
+                    const configForIndicator = magnificIframeConfigs["indicator"];
 
-    // Barra superior
-    const totalWidth = maxX - minX + (padding * 2);
-    const barHeight = 30;
+                    if (configForIndicator) {
+                        $.magnificPopup.open({
+                            items: {
+                                src: nodeData.urlIndicator,
+                                type: "iframe",
+                            },
+                            iframe: {
+                                markup: configForIndicator.markup,
+                            },
+                            mainClass: "mfp-fade",
+                            removalDelay: 160,
+                            preloader: false,
+                            fixedContentPos: true,
+                        });
+                    } else {
+                        console.warn('Configuração "indicator" não encontrada no JSON');
+                    }
+                }
+                e.stopPropagation();
+                return false;
+            }
+        });
+            
+        // Evento para ajustar alturas após criação
+        chart.on('created', function(sender) {
+            setTimeout(() => {
+            chart.fit();
+            }, 100);
+        });
 
-    args.content +=
-    `<rect x="${minX - padding}" y="${minY - 75}" width="${totalWidth}" height="${barHeight}" fill="#000" rx="10" ry="10" />` +
-    `<text class="level-name" x="${minX + totalWidth/2 - padding}" y="${minY - 55}" text-anchor="middle" font-size="16" fill="#fff">${titleKPI}</text>`;
+        // Evento para desenhar bordas de nível
+        chart.on('prerender', function(sender, args){
+            const borders = args.res.bordersByRootIdAndLevel[Object.keys(args.res.bordersByRootIdAndLevel)[0]];
+            let maxY = Number.MIN_SAFE_INTEGER;
+            let minY = Number.MAX_SAFE_INTEGER;
+            let minX = Number.MAX_SAFE_INTEGER;
+            let maxX = Number.MIN_SAFE_INTEGER;
 
-        for (let i in borders){
-            const x = borders[i].minX - padding;
-            const width = borders[i].maxX - borders[i].minX + padding * 2;
-            const height = maxY - minY + padding * 2;
-            const y = minY - padding;
+            for (let i in borders){
+                maxY = Math.max(maxY, borders[i].maxY);
+                minY = Math.min(minY, borders[i].minY);
+                minX = Math.min(minX, borders[i].minX);
+                maxX = Math.max(maxX, borders[i].maxX);
+            }
 
-            const levelName = customLevelNames[i] || `Nível ${i}`;
+            // Barra superior
+            const totalWidth = maxX - minX + (padding * 2);
+            const barHeight = 30;
 
             args.content +=
-            `<rect x="${x}" y="${minY - 40}" width="${width}" height="24" fill="#fdc643" rx="10" ry="10" />` +
-            `<text class="level-name" x="${x + width / 2}" y="${minY - 23}" text-anchor="middle">${levelName}</text>` +
-            `<rect style="opacity: 0.7" x="${x}" rx="20" ry="20" y="${y}" width="${width}" height="${height}" fill="${bg_colors[i] || '#ccc'}" />`;
-        }
-    });
+            `<rect x="${minX - padding}" y="${minY - 75}" width="${totalWidth}" height="${barHeight}" fill="#000" rx="10" ry="10" />` +
+            `<text class="level-name" x="${minX + totalWidth/2 - padding}" y="${minY - 55}" text-anchor="middle" font-size="16" fill="#fff">${titleKPI}</text>`;
 
-    // Evento redraw para definir os tooltips dinamicamente e inicializar o Tooltipster
-    chart.on('redraw', function (sender) {
-    // Destruir tooltips existentes em todos os elementos que possam ter tido um tooltip
-    $(sender.element).find('.tooltipstered').tooltipster('destroy');
+            for (let i in borders){
+                const x = borders[i].minX - padding;
+                const width = borders[i].maxX - borders[i].minX + padding * 2;
+                const height = maxY - minY + padding * 2;
+                const y = minY - padding;
 
-    let totalTooltipElementsFound = 0;
+                const levelName = customLevelNames[i] || `Nível ${i}`;
 
-    sender.visibleNodeIds.forEach(nodeId => {
-        const nodeElement = sender.getNodeElement(nodeId); // Obtém o elemento <g> SVG do nó
-        const nodeData = sender.get(nodeId); // Obtém os dados do nó
-
-        if (nodeElement && nodeData) {
-            // Define os tooltips para o template 'ana'
-            if (!nodeData.tags || (nodeData.tags && !nodeData.tags.includes('node-parameter') && !nodeData.tags.includes('node-parameter-critical'))) {
-                $(nodeElement).find('[data-btn-popup="create"]').attr('data-tooltip', nodeData.createTooltip || '');
-                $(nodeElement).find('[data-btn-popup="edit"]').attr('data-tooltip', nodeData.editTooltip || '');
-                $(nodeElement).find('[data-btn-alert="del"]').attr('data-tooltip', nodeData.delTooltip || '');
-                $(nodeElement).find('[data-btn-popup="indicator"]').attr('data-tooltip', nodeData.indicatorTooltip || '');
+                args.content +=
+                `<rect x="${x}" y="${minY - 40}" width="${width}" height="24" fill="#fdc643" rx="10" ry="10" />` +
+                `<text class="level-name" x="${x + width / 2}" y="${minY - 23}" text-anchor="middle">${levelName}</text>` +
+                `<rect style="opacity: 0.7" x="${x}" rx="20" ry="20" y="${y}" width="${width}" height="${height}" fill="${bg_colors[i] || '#ccc'}" />`;
             }
-            // Define os tooltips para o template 'node-parameter'
-            else if (nodeData.tags && nodeData.tags.includes('node-parameter')) {
-                //$(nodeElement).find('[data-btn-popup="parameter"]').attr('data-tooltip', nodeData.parameterTooltip || '');
-                $(nodeElement).find('[data-btn-popup="create"]').attr('data-tooltip', nodeData.createTooltip || '');
-                $(nodeElement).find('[data-btn-popup="edit"]').attr('data-tooltip', nodeData.editTooltip || '');
-                $(nodeElement).find('[data-btn-alert="del"]').attr('data-tooltip', nodeData.delTooltip || '');
-            }
-            // Define os tooltips para o template 'node-parameter-critical'
-            else if (nodeData.tags && nodeData.tags.includes('node-parameter-critical')) {
-                //$(nodeElement).find('[data-btn-popup="parameter"]').attr('data-tooltip', nodeData.parameterTooltip || '');
-                //$(nodeElement).find('.icon-critical[data-tooltip]').attr('data-tooltip', nodeData.criticalTooltip || '');
-                $(nodeElement).find('[data-btn-popup="create"]').attr('data-tooltip', nodeData.createTooltip || '');
-                $(nodeElement).find('[data-btn-popup="edit"]').attr('data-tooltip', nodeData.editTooltip || '');
-                $(nodeElement).find('[data-btn-alert="del"]').attr('data-tooltip', nodeData.delTooltip || '');
-            }
+        });
 
-            // inicializa Tooltipster para todos os elementos com data-tooltip
-            $(nodeElement).find('[data-tooltip]').each(function() {
-                const $this = $(this);
-                const tooltipContent = $this.attr('data-tooltip'); 
+        // Evento redraw para definir os tooltips dinamicamente e inicializar o Tooltipster
+        chart.on('redraw', function (sender) {
+            // Destruir tooltips existentes em todos os elementos que possam ter tido um tooltip
+            $(sender.element).find('.tooltipstered').tooltipster('destroy');
 
-                if (tooltipContent && tooltipContent.trim() !== '') {
-                    $this.tooltipster({
-                        content: tooltipContent,
-                        interactive: true,
-                        trigger: 'hover',
-                        delay: 100,
-                        side: 'top',
-                        debug: true
+            let totalTooltipElementsFound = 0;
+
+            sender.visibleNodeIds.forEach(nodeId => {
+                const nodeElement = sender.getNodeElement(nodeId); // Obtém o elemento <g> SVG do nó
+                const nodeData = sender.get(nodeId); // Obtém os dados do nó
+
+                if (nodeElement && nodeData) {
+                    // Define os tooltips para o template 'ana'
+                    if (!nodeData.tags || (nodeData.tags && !nodeData.tags.includes('node-parameter') && !nodeData.tags.includes('node-parameter-critical'))) {
+                        $(nodeElement).find('[data-btn-popup="create"]').attr('data-tooltip', nodeData.createTooltip || '');
+                        $(nodeElement).find('[data-btn-popup="edit"]').attr('data-tooltip', nodeData.editTooltip || '');
+                        $(nodeElement).find('[data-btn-alert="del"]').attr('data-tooltip', nodeData.delTooltip || '');
+                        $(nodeElement).find('[data-btn-popup="indicator"]').attr('data-tooltip', nodeData.indicatorTooltip || '');
+                    }
+                    // Define os tooltips para o template 'node-parameter'
+                    else if (nodeData.tags && nodeData.tags.includes('node-parameter')) {
+                        //$(nodeElement).find('[data-btn-popup="parameter"]').attr('data-tooltip', nodeData.parameterTooltip || '');
+                        $(nodeElement).find('[data-btn-popup="create"]').attr('data-tooltip', nodeData.createTooltip || '');
+                        $(nodeElement).find('[data-btn-popup="edit"]').attr('data-tooltip', nodeData.editTooltip || '');
+                        $(nodeElement).find('[data-btn-alert="del"]').attr('data-tooltip', nodeData.delTooltip || '');
+                    }
+                    // Define os tooltips para o template 'node-parameter-critical'
+                    else if (nodeData.tags && nodeData.tags.includes('node-parameter-critical')) {
+                        //$(nodeElement).find('[data-btn-popup="parameter"]').attr('data-tooltip', nodeData.parameterTooltip || '');
+                        //$(nodeElement).find('.icon-critical[data-tooltip]').attr('data-tooltip', nodeData.criticalTooltip || '');
+                        $(nodeElement).find('[data-btn-popup="create"]').attr('data-tooltip', nodeData.createTooltip || '');
+                        $(nodeElement).find('[data-btn-popup="edit"]').attr('data-tooltip', nodeData.editTooltip || '');
+                        $(nodeElement).find('[data-btn-alert="del"]').attr('data-tooltip', nodeData.delTooltip || '');
+                    }
+
+                    // inicializa Tooltipster para todos os elementos com data-tooltip
+                    $(nodeElement).find('[data-tooltip]').each(function() {
+                        const $this = $(this);
+                        const tooltipContent = $this.attr('data-tooltip'); 
+
+                        if (tooltipContent && tooltipContent.trim() !== '') {
+                            $this.tooltipster({
+                                content: tooltipContent,
+                                interactive: true,
+                                trigger: 'hover',
+                                delay: 100,
+                                side: 'top',
+                                debug: true
+                            });
+                            totalTooltipElementsFound++;
+                        } else {
+                            console.log('Tooltip content is empty for element:', $this);
+                        }
                     });
-                    totalTooltipElementsFound++;
-                } else {
                 }
             });
-        }
-    });
-});
+        });
 
-    chart.load(nodesData);
-}
+        chart.load(nodesData);
+    }
 
     loadPopupConfigs();
 });
 
 window.adicionarIndicadorAoNode = function(nomeIndicador) {
     const id = window.nodeAtivoId;
+    
     if (id && window.chart) {
         const nodeData = window.chart.get(id);
 
