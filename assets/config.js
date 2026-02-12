@@ -90,7 +90,7 @@ $(document).ready(function () {
             "urlEdit": "./popups/edit/",
             "urlDel": "del.asp",
             "urlIndicator": "./indicator.html",
-            "htmlContent": "<div>• Test</div><div>• Test</div><div>• Test</div><div>• Test</div><div>• Test</div><div>• Test</div><div>• Test</div><div>• Test</div><div>• Test</div><div>• Test</div>",
+            "htmlContent": "<div>Indicator 1</div><div>Indicator 2</div><div>Indicator 3</div><div>Indicator 4</div><div>Indicator 5</div>",
             "createTooltip": "Create new SubArea",
             "editTooltip": "Edit Area",
             "delTooltip": "Delete Area",
@@ -812,7 +812,7 @@ window.adicionarIndicadorAoNode = function(nomeIndicador) {
         let conteudoAtual = nodeData.htmlContent || "";
         
         // Adiciona o novo item (com um <br> ou <div> para quebrar linha)
-        const novoItemHtml = `<div>• ${nomeIndicador}</div>`;
+        const novoItemHtml = `<div>Indicator${nomeIndicador}</div>`;
         
         // Atualiza o objeto de dados
         nodeData.htmlContent = conteudoAtual + novoItemHtml;
