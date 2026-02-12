@@ -27,7 +27,7 @@
     <script src="https://supplyportal-dev.archivesdl.com/gop/2026/assets/js/rsframework-form.js?v=2.9.8"></script>
 
     <script src="https://supplyportal-dev.archivesdl.com/gop/2026/assets/js/plugins/magnific-popup.min.js?v=2.9.8"></script>
-    <script src="./assets/orgchart/orgchart.js"></script>
+    <script src="https://cdn.balkan.app/orgchart.js"></script>
 </head>
 
 <body>
@@ -42,10 +42,37 @@
     </div>
 
     <style>
-        .html-content {
-            color: #FF0000;
-            font-size: 11px;
-            overflow: visible;
+        .html-content-container {
+            display: flex;
+            flex-direction: column;
+            padding: 0;
+            height: 100%;
+            line-height: 1.2;
+            box-sizing: border-box;
+        }
+
+        .html-content-indicator-title {
+            width: 100%; 
+            height: 100%; 
+            background-color: #f5f5f5; 
+            color: #444; 
+            font-size: 11px; 
+            font-weight: 400; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            border-radius: 8px;
+        }
+
+        .html-content-indicator {
+            margin-top: -20px;
+            padding: 0;
+            line-height: 1.2;
+            box-sizing: border-box;
+            width: 100%; 
+            color: #757575; 
+            font-size: 11px; 
+            white-space: pre-wrap;
         }
     </style>
 

@@ -90,7 +90,7 @@ $(document).ready(function () {
             "urlEdit": "./popups/edit/",
             "urlDel": "del.asp",
             "urlIndicator": "./indicator.html",
-            "htmlContent": "",
+            "htmlContent": "<div>• Test</div><div>• Test</div><div>• Test</div><div>• Test</div><div>• Test</div><div>• Test</div><div>• Test</div><div>• Test</div><div>• Test</div><div>• Test</div>",
             "createTooltip": "Create new SubArea",
             "editTooltip": "Edit Area",
             "delTooltip": "Delete Area",
@@ -105,6 +105,7 @@ $(document).ready(function () {
             "urlEdit": "./popups/edit/",
             "urlDel": "del.asp",
             "urlIndicator": "./indicator.html",
+            "htmlContent": "",
             "createTooltip": "Create Equipament",
             "editTooltip": "Edit SubArea",
             "delTooltip": "Delete SubArea",
@@ -250,17 +251,21 @@ $(document).ready(function () {
     OrgChart.templates.ana.field_html_content = `
         <foreignObject 
             x="10" 
-            y="60" 
-            width="${widthContentNodes}"
-            height="100%" 
+            y="70" 
+            width="${widthContentNodes}" 
+            height="20" 
         >
-            <div xmlns="http://www.w3.org/1999/xhtml" 
-                style="width: 100%; 
-                        height: 100%; 
-                        box-sizing: border-box; 
-                        color: #FF0000; 
-                        font-size: 11px;
-                        overflow: visible;">
+            <div xmlns="http://www.w3.org/1999/xhtml" class="html-content-indicator-title">Indicator</div>
+        </foreignObject>
+
+        <foreignObject 
+            x="10" 
+            y="95" 
+            width="${widthContentNodes}" 
+            height="100%" 
+            class="html-content-container"
+        >
+            <div xmlns="http://www.w3.org/1999/xhtml" class="html-content-indicator">
                 {val}
             </div>
         </foreignObject>
@@ -377,7 +382,7 @@ $(document).ready(function () {
     }
 
     // Função para calcular altura dinâmica de conteúdo (texto ou HTML)
-    function calculateContentHeight(content, width, fontSize = 12, lineHeight = 1.2) {
+    function calculateContentHeight(content, width, fontSize = 11, lineHeight = 1.5) {
         if (!content || content.trim() === '') return 0;
 
         // Cria um div temporário para medir o conteúdo
@@ -392,7 +397,7 @@ $(document).ready(function () {
             boxSizing: 'border-box',
             wordWrap: 'break-word',
             whiteSpace: 'normal',
-            fontFamily: 'Arial, sans-serif' // Use a mesma fonte do seu site
+            fontFamily: 'Roboto, Arial, sans-serif' // Use a mesma fonte do seu site
         }).html(content);
 
         $('body').append($tempDiv);
@@ -462,63 +467,53 @@ $(document).ready(function () {
 
             if (data.tags && $.inArray('node-parameter', data.tags) !== -1) {
                 args.node.h = 40;
-            }
-            else if (data.tags && $.inArray('node-parameter-critical', data.tags) !== -1) {
+            } else if (data.tags && $.inArray('node-parameter-critical', data.tags) !== -1) {
                 args.node.h = 40;
-            }
-            else {
-                // Nó normal (template ana): altura dinâmica
+            } else {
+                // Cálculo para template ANA
+                const nameFieldY = 55;
                 const buttonAreaHeight = 32;
                 const buttonAreaY = 5;
-                const nameFieldY = 55;
                 
-                let totalHeight = buttonAreaY + buttonAreaHeight + 10; // Base
+                // Medir altura do nome
+                let nameHeight = data.name ? calculateContentHeight(data.name, widthContentNodes, 12) : 0;
                 
-                // Calcula altura do nome
-                let nameHeight = 0;
-                if (data.name) {
-                    nameHeight = calculateContentHeight(data.name, widthContentNodes, 12);
-                    totalHeight += nameHeight;
-                }
-                
-                // Calcula altura do conteúdo HTML
-                let htmlContentHeight = 0;
+                // Posição onde o HTML deve começar (abaixo do nome)
                 let htmlContentY = nameFieldY + nameHeight + 5;
                 
+                // Medir altura do conteúdo HTML
+                let htmlContentHeight = 0;
                 if (data.htmlContent && data.htmlContent.trim() !== '') {
                     htmlContentHeight = calculateContentHeight(data.htmlContent, widthContentNodes, 11);
-                    totalHeight += 5 + htmlContentHeight; // 5px de espaçamento
-                } else {
-                    htmlContentHeight = 0;
                 }
+
+                // Altura total: Fim do conteúdo HTML + margem inferior (padding)
+                let totalHeight = htmlContentY + htmlContentHeight + padding;
                 
-                // Adiciona padding inferior
-                totalHeight += padding;
+                // Garante altura mínima para os botões
+                if (totalHeight < 90) totalHeight = 90;
+
+                // ATUALIZA O NÓ
+                args.node.h = totalHeight + 10;
                 
-                args.node.h = totalHeight;
-                
-                // Armazena metadados
+                // GUARDA NO DATA (para o evento field ler depois)
                 data._htmlContentHeight = htmlContentHeight;
                 data._htmlContentY = htmlContentY;
-                data._nameHeight = nameHeight;
                 
-                // Se não há conteúdo HTML, define altura mínima
-                if (htmlContentHeight === 0) {
-                    data._htmlContentHeight = 0;
-                }
+                console.log(`Node ${data.id}: h=${totalHeight}, htmlY=${htmlContentY}`);
             }
         });
 
+
         // Evento onField para definir y e height do foreignObject dinamicamente
         chart.on('field', function(sender, args) {
-            // Verifica se é o nosso campo de conteúdo HTML personalizado
             if (args.name === 'field_html_content') {
-                const foreignObjectElement = args.element; // Este é o elemento <foreignObject> SVG
-                const node = args.node;
+                const foreignObjectElement = args.element;
+                // IMPORTANTE: Buscar os dados do objeto de dados (sender.get), não do args.node
+                const nodeData = sender.get(args.node.id);
 
-                // Acessa os valores calculados e armazenados em 'node-initialized'
-                const yPos = node._htmlContentY;
-                const heightVal = node._htmlContentHeight;
+                const yPos = nodeData._htmlContentY;
+                const heightVal = nodeData._htmlContentHeight;
 
                 if (foreignObjectElement && yPos !== undefined && heightVal !== undefined) {
                     foreignObjectElement.setAttribute('y', yPos);
@@ -746,9 +741,8 @@ $(document).ready(function () {
 
                 if (!nodeElement || !nodeData || !node) return;
 
-                // LEVEL 0 = L1 Plant
-                if (node.level === LEVEL_PLANT) {
-
+                // LEVEL Removidos o botão indicator
+                if (node.level === LEVEL_PLANT || node.level === LEVEL_EQUIPMENT || node.level === LEVEL_INDICATOR) {
                     // remove botão indicator
                     $(nodeElement)
                         .find('[data-btn-popup="indicator"]')
