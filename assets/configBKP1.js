@@ -359,7 +359,7 @@ $(document).ready(function () {
 
     async function loadPopupConfigs() {
         try {
-            const configsResponse = await fetch('./data-popups-config.json');
+            const configsResponse = await fetch('./assets/data-popups-config.json');
             magnificIframeConfigs = await configsResponse.json();
             initializeChart();
         } catch (error) {
