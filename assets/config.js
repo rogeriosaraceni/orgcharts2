@@ -16,7 +16,7 @@ $(document).ready(function () {
     let widthTextParameter = 380;
     let widthTextParameterCritical = 280;
 
-    let scaleValue = 0.95;
+    let scaleValue = 1;
 
     const widthScreen = window.innerWidth
 
@@ -226,7 +226,7 @@ $(document).ready(function () {
                     <i class="fa fa-trash-o"></i>
                 </div>
                 <div class="btn-icon-node" data-node-id="{id}" data-btn-popup="indicator" data-tooltip="{indicatorTooltip}">
-                    <i class="fa fa-sitemap"></i>
+                    <i class="fa fa-tachometer"></i>
                 </div>
             </div>
         </foreignObject>
